@@ -1,0 +1,875 @@
+---
+title: "EXAMEN R 2023"
+author: "BRAHIMI Hachem G08"
+date: "2023-01-26"
+output: html_document
+---
+```{r}
+library(tidyverse)
+library(ggplot2)
+library(patchwork)
+library(corrplot)
+```
+
+```{r}
+
+
+nrow(data) # y'a 20640 ligne dans cette base de donnee
+
+data %>% 
+  select(-ocean_proximity) %>% 
+  summary()
+       
+data %>% 
+  summarise_all(funs(class(.)))# y'a 9 variable de categorie double type numerique et une seule variable character de type character (ocean_proximity)
+
+
+data %>% 
+  summarise_all(funs(sum(is.na(.))))
+
+data %>%
+   summarise(valeur_manquante = sum(is.na(total_bedrooms)))
+
+# y'a 207 valeur manquante pour la variable "total_bedrooms"
+
+data %>% 
+  summarise(pourcentage_des_valeur_manquante = 207*100/nrow(data)) # le nombre des valeur manquante n'est pas considerable parceque il represente 1% d'observation de cette base de donee
+
+
+```
+
+
+###################################################################################################
+
+
+```{r}
+set.seed(as.numeric("22350300"))
+data <- data %>%
+          slice_sample(n = 5000)
+# this code sliced the first data base from 20640 observations to 5000 randomnly following the random seed .
+# the role of this operation is to create a smaller data frame to facilitate manipulating and visualizing the data ,and to prevent cheating between students since evreyone has its own seed so the results are different .
+
+
+```
+
+
+###################################################################################################
+
+
+```{r}
+data %>% 
+  select(-ocean_proximity) %>% 
+  summary()
+# non y'a pas un changemant par rapport de la premiere question ,parceque on a pris un echontillion d'observations de la premiere base de donnee  d'ou nous allons avoir les meme resultats statistique 
+library(ggplot2)
+
+data %>%  
+  ggplot(aes(x=longitude))+
+  geom_histogram(fill="green",binwidth = 0.7,alpha=3)+
+  theme_bw()+
+  labs(title = "HISTOGRAMME DE LA LONGITUDEdans cette rue",
+       subtitle = "EST/OUEST",
+       caption = "exam23",
+       x="longitude",
+       y="frequ")
+
+p1 <- data %>%  
+  ggplot(aes(x=longitude))+
+  geom_histogram(fill="green",binwidth = 0.7,alpha=3)+
+  theme_bw()+
+  labs(title = "HISTOGRAMME DE LA LONGITUDEdans cette rue",
+       subtitle = "EST/OUEST",
+       caption = "exam23",
+       x="longitude",
+       y="frequ")
+# on observe qu'il y'a beaucoup plus de city block a l'est qu'a l'ouest   
+  
+       
+```
+```{r}
+data %>%  
+  ggplot(aes(x=latitude))+
+  geom_histogram(fill="red",binwidth = 0.7)+
+  theme_bw()+ 
+  labs(title = "HISTOGRAMME DE LA LATITUDE dans cette rue",
+       subtitle = "NORD/SUD",
+       caption = "exam23",
+       x="latitude",
+       y="frequ")
+
+p2<- data %>%  
+  ggplot(aes(x=latitude))+
+  geom_histogram(fill="red",binwidth = 0.7)+
+  theme_bw()+ 
+  labs(title = "HISTOGRAMME DE LA LATITUDE dans cette rue",
+       subtitle = "NORD/SUD",
+       caption = "exam23",
+       x="latitude",
+       y="frequ")
+# on observe qu'il y'a beaucoup plus de city block au sud qu'au nord
+
+
+```
+```{r}
+data %>%  
+  ggplot(aes(x=housing_median_age))+
+  geom_histogram(fill="blue",binwidth =4)+
+  theme_bw()+
+  labs(title = "L'AGE MEDIAN DES MAISONS dans cette rue",
+       caption = "exam23",
+       x="L'AGE",
+       y="frequ")
+
+
+p3<-data %>%  
+  ggplot(aes(x=housing_median_age))+
+  geom_histogram(fill="blue",binwidth =4)+
+  theme_bw()+
+  labs(title = "L'AGE MEDIAN DES MAISONS dans cette rue",
+       caption = "exam23",
+       x="L'AGE",
+       y="frequ")
+# on observe les maisons sont vieilles un peu
+
+
+```
+```{r}
+data %>%  
+  filter(total_rooms<15000) %>% 
+  ggplot(aes(x=total_rooms))+
+  geom_histogram(fill="yellow",binwidth =1500)+
+  theme_bw()+
+  labs(title = "NOMBRE DES CHAMBRES dans cette rue",
+       subtitle = "cusuines et salle de bains inclus",
+       caption = "exam23",
+       x="nbre de chambres ",
+       y="frequ")
+
+
+p4<-data %>%  
+  filter(total_rooms<15000) %>% 
+  ggplot(aes(x=total_rooms))+
+  geom_histogram(fill="yellow",binwidth =1500)+
+  theme_bw()+
+  labs(title = "NOMBRE DES CHAMBRES dans cette rue",
+       subtitle = "cusuines et salle de bains inclus",
+       caption = "exam23",
+       x="nbre de chambres ",
+       y="frequ")
+# 
+
+
+```
+```{r}
+data %>% 
+  filter(total_bedrooms<3000) %>% 
+  ggplot(aes(x=total_bedrooms))+
+  geom_histogram(fill="orange",binwidth = 300)+
+  theme_bw()+
+  labs(title = "NOMBRE DES CHAMBRES dans cette rue",
+       subtitle = "chambres seulement",
+       caption = "exam23",
+       x="nbre de chambres ",
+       y="frequ")
+
+
+p5<-data %>% 
+  filter(total_bedrooms<3000) %>% 
+  ggplot(aes(x=total_bedrooms))+
+  geom_histogram(fill="orange",binwidth = 300)+
+  theme_bw()+
+  labs(title = "NOMBRE DES CHAMBRES dans cette rue",
+       subtitle = "chambres seulement",
+       caption = "exam23",
+       x="nbre de chambres ",
+       y="frequ")
+#
+
+
+
+
+
+```
+```{r}
+data %>% 
+  filter(population<=7500) %>% 
+  ggplot(aes(x=population)) +
+  geom_histogram(binwidth = 700,fill="purple")+
+  theme_bw()+
+  labs(title = " nombre totales de la population dans cette rue",
+       caption = "exam23",
+       x="population ",
+       y="frequ")
+
+
+p6<-data %>% 
+  filter(population<=7500) %>% 
+  ggplot(aes(x=population)) +
+  geom_histogram(binwidth = 700,fill="purple")+
+  theme_bw()+
+  labs(title = " nombre totales de la population dans cette rue",
+       caption = "exam23",
+       x="population ",
+       y="frequ")
+# y'a de cityblock avec 4000 de population ,mais la moyenne 1500 de population
+```
+```{r}
+data %>%  
+  filter(households<=3000) %>% 
+  ggplot(aes(x=households)) +
+  geom_histogram(binwidth = 200,fill="darkgrey")+
+  theme_bw()+
+  labs(title = " nombre totales des ménages dans cette rue",
+       caption = "exam23",
+       x="nbre de ménages ",
+       y="frequ")
+
+p7<-data %>%  
+  filter(households<=3000) %>% 
+  ggplot(aes(x=households)) +
+  geom_histogram(binwidth = 200,fill="darkgrey")+
+  theme_bw()+
+  labs(title = " nombre totales des ménages dans cette rue",
+       caption = "exam23",
+       x="nbre de ménages ",
+       y="frequ")
+# y'a des city block avec 2000 menages , mais la moyenne c'est 500 menages pa cityblock
+```
+```{r}
+data %>%  
+  ggplot(aes(x=median_income)) +
+  geom_histogram(binwidth = 0.5,fill="black")+
+  theme_bw()+
+  labs(title = "  le revenu médian des ménages dans cette rue",
+       subtitle =  "(mesuré en 10000$)",
+       caption = "exam23",
+       x="revenu",
+       y="frequ")
+
+
+p8<-data %>%  
+  ggplot(aes(x=median_income)) +
+  geom_histogram(binwidth = 0.5,fill="black")+
+  theme_bw()+
+  labs(title = "  le revenu médian des ménages dans cette rue",
+       subtitle =  "(mesuré en 10000$)",
+       caption = "exam23",
+       x="revenu",
+       y="frequ")
+# y'a des city block ou les menages sont riches , mais la plupart des city block les menages ont un revenu moyen
+```
+```{r}
+data %>%  
+  filter(median_house_value<5e+05) %>% 
+  ggplot(aes(x=median_house_value)) +
+  geom_histogram(binwidth = 10000,fill="magenta")+
+  theme_bw()+
+  labs(title = " valeur médiane de la maison dans cette rue",
+       subtitle =  "(mesuré en $)",
+       caption = "exam23",
+       x="valeur",
+       y="frequ")
+
+
+
+p9<-data %>%  
+  filter(median_house_value<5e+05) %>% 
+  ggplot(aes(x=median_house_value)) +
+  geom_histogram(binwidth = 10000,fill="magenta")+
+  theme_bw()+
+  labs(title = " valeur médiane de la maison dans cette rue",
+       subtitle =  "(mesuré en $)",
+       caption = "exam23",
+       x="valeur",
+       y="frequ")
+# la plupart de maisons sont affordable
+```
+```{r}
+
+
+
+```
+```{r}
+library(patchwork)
+
+p1+p2+p3+p4+p5+p6+p7+p8+p9
+
+
+```
+```{r}
+data %>% 
+  pull(median_house_value) %>% 
+  summary()
+data %>% 
+  pull(housing_median_age) %>% 
+  summary()
+
+```
+```{r}
+data %>% 
+  pull(median_income) %>% 
+  summary()
+#l'anommalie c'est y'a un menage qui a pour revenu 1500010
+
+```
+```{r}
+data %>% 
+  pull(longitude) %>% 
+  summary()
+data %>% 
+  pull(latitude) %>% 
+  summary()
+
+```
+```{r}
+data %>% 
+  pull(population) %>% 
+  summary()
+data %>% 
+  pull(households) %>% 
+  summary()
+# l'anommalie c'est 5358 menages dans une seule rue 
+
+```
+```{r}
+data %>% 
+  pull(total_rooms) %>% 
+  summary()
+data %>% 
+  pull(total_bedrooms) %>% 
+  summary()
+#l'anommalie la c'est 6210 bedrooms dans une seule rue 
+```
+
+
+##################################################################################################
+
+
+```{r}
+data %>% 
+  summarise(mediane=median(housing_median_age))
+
+```
+```{r}
+data %>% 
+  filter(ocean_proximity=="NEAR OCEAN",
+         median_income*10000<45000) %>% 
+  summarise(mediane=median(median_house_value,na.rm = TRUE))
+
+```
+```{r}
+data %>% 
+  filter(population>10000,
+         ocean_proximity=="<1H OCEAN") %>% 
+  summarise(variance=var(total_rooms,na.rm = TRUE),
+            ecarttype=sd(total_rooms,na.rm = TRUE))
+```
+```{r}
+data %>% 
+  filter( 25000 < median_income*10000) %>% 
+  filter( median_income*10000 < 45000,
+         total_rooms >500) %>%
+  count() %>% 
+  mutate(frequence_relative=n/nrow(data))
+ 
+  
+ 
+```
+```{r}
+
+mae <- function(x){
+  mediane = median(x,na.rm = TRUE)
+  m <-sum(abs(x-mediane),na.rm = TRUE)
+  mae <-m/nrow(data)
+  return(mae)
+}
+  
+data %>% 
+  filter(ocean_proximity=="NEAR OCEAN") %>%
+  summarise(mae=mae(total_bedrooms))
+
+data %>% 
+  filter(ocean_proximity=="INLAND") %>%
+  summarise(mae=mae(total_bedrooms))
+
+data %>% 
+  filter(ocean_proximity=="<1H OCEAN") %>%
+  summarise(mae=mae(total_bedrooms))
+
+
+data %>% 
+  filter(ocean_proximity=="NEAR BAY") %>%
+  summarise(mae=mae(total_bedrooms))
+
+
+
+
+```
+```{r}
+data %>% 
+  filter(ocean_proximity=="NEAR BAY",population>1000) %>% 
+  summarise(deciles=quantile(households,na.rm=TRUE,probs=seq(0.1,0.9,by=0.1)))
+```
+```{r}
+data %>% 
+  filter(households<100) %>% 
+  summarise(quantiles=quantile(median_house_value,na.rm=TRUE,probs=c(0.3,0.6,0.85)))
+```
+```{r}
+data %>% 
+  filter(ocean_proximity=="NEAR OCEAN") %>%
+  summarise(quartiles1=quantile(median_house_value,ne.rm=TRUE,probs=c(0.25,0.5,0.75)))
+data %>% 
+  filter(ocean_proximity=="INLAND") %>%
+  summarise(quartiles2=quantile(median_house_value,ne.rm=TRUE,probs=c(0.25,0.5,0.75)))
+data %>% 
+  filter(ocean_proximity=="<1H OCEAN") %>%
+  summarise(quartiles3=quantile(median_house_value,ne.rm=TRUE,probs=c(0.25,0.5,0.75)))
+data %>% 
+  filter(ocean_proximity=="NEAR BAY") %>%
+  summarise(quartiles4=quantile(median_house_value,ne.rm=TRUE,probs=c(0.25,0.5,0.75)))
+
+# la valeur de la maison augmente quand on se rapproche de la mere 
+```
+
+
+##################################################################################################
+
+
+```{r}
+data %>% 
+  ggplot(aes(x=longitude,y=latitude))+
+  geom_point(col="blue",alpha=0.5)+
+  theme_dark()+
+  labs(title = "longitude vs latitude",
+       caption = "exam23",
+       x="longitude",
+       y="latitude")
+# on remearque que ce graphe est similair a la map de la californie 
+
+
+# si on compare la carte de la californie avec ce nuage de point ,on trouve que tous les point de ce graphe sont inclu dans la carte de la californie car (explication) ces point sont des coordonnees des city block du la californie .
+
+
+# oui ,les cotees (south-middle et middle-west ) ont des frequences plus elvees que les autres cotees
+
+```
+```{r}
+data %>%
+  ggplot(aes(x=longitude,y=latitude,col=ocean_proximity))+
+  geom_point()+
+  theme_bw()+
+  labs(title = "ocean proximity  ",
+                    caption = "exam23",
+                    x="longitude",
+                    y="latitude")
+
+#
+
+
+
+```
+```{r}
+data %>% 
+  ggplot(aes(x=longitude,y=latitude,col=median_house_value))+
+  geom_point()+
+  theme_bw()+
+  labs(title = "la valeur des maisons ",
+       caption = "exam23",
+       x="longitude",
+       y="latitude")
+# la valeur de la maison augmente quand on se rapproche de la mere 
+```
+```{r}
+
+
+#non y'a pas une difference 
+
+
+data %>%
+  ggplot(aes(x=longitude,y=latitude,col=median_house_value))+
+  geom_point()+
+  theme_bw()+
+  facet_wrap(vars(ocean_proximity), ncol=2, nrow=2, scales = "free")+
+  labs(title = "median house value ",
+       subtitle = "depanding to ocean proximity")
+  
+#
+
+
+
+```
+```{r}
+data_1 <- data %>% 
+  mutate(coté=case_when(longitude >= min(longitude) & longitude < (-118.75) & 
+                          latitude > 37.5 & latitude <= max(latitude) ~ "NORTHWEST",
+                        longitude >= (-118.75) & longitude <= max(longitude) &
+                          latitude >= 37.5 & latitude <= max(latitude) ~ "NORTHEAST",
+                        longitude >= min(longitude) & longitude <= (-118.75) &
+                          latitude >= min(latitude) & latitude <= 37.5 ~ "SOUTHWEST",
+                        longitude > (-118.75) & longitude <= max(longitude) &
+                          latitude >= min(latitude) & latitude < 37.5 ~ "SOUTHEAST"))
+```
+```{r}
+
+data %>% 
+  ggplot(aes(x=longitude,y=latitude))+
+  geom_point(col="blue",alpha=0.5)+
+  geom_vline(aes(xintercept= -118.75),col="yellow")+
+  geom_hline(aes(yintercept=37.5),col="green")+
+  theme_dark()+
+  labs(title = "longitude vs latitude",
+       caption = "exam23",
+       x="longitude",
+       y="latitude")
+
+#
+
+
+
+```
+```{r}
+data_1 %>% 
+  ggplot(aes(x=longitude,y=latitude,col=coté))+
+  geom_point(alpha=0.2)+
+  geom_vline(aes(xintercept= -118.75),col="yellow")+
+  geom_hline(aes(yintercept=37.5),col="green")+
+  theme_bw()+
+  labs(title = "longitude vs latitude",
+       caption = "exam23",
+       x="longitude",
+       y="latitude")
+# on peut remarquer que la frequence de rue est plus elvee dans le cote de southeast et northwest
+# qu'au southwest et northeast
+
+
+
+
+
+```
+
+
+##################################################################################################
+
+
+```{r}
+data %>% 
+  count(ocean_proximity) %>% 
+  ggplot(aes(x=ocean_proximity,y=n,fill=ocean_proximity))+
+  geom_col()+
+  geom_text(aes(label=paste("fréquence =", n)), col ="red", nudge_y = 100)+
+  theme_bw()+
+  labs(title = "ditribution par proximity",
+       subtitle = "(frequence)",
+       x="ocean proximity",
+       y="frequ")
+# la augmente quand on se rapproche au mere 
+
+
+
+
+
+
+
+
+
+```
+```{r}
+
+data %>% 
+  filter(total_rooms<20000) %>% 
+  ggplot(aes(x=total_rooms))+
+  geom_boxplot(fill="green")+
+  coord_flip()+
+  theme_bw()+
+  labs(title = "ditrib total des chambres",
+       subtitle = "boxplot",
+       x="total rooms")
+#
+
+
+data %>% 
+  filter(total_bedrooms<3000) %>%
+  ggplot(aes(x=total_bedrooms))+
+  geom_boxplot(fill="green")+
+  coord_flip()+
+  theme_bw()+
+  labs(title = "ditrib total bedrooms",
+       subtitle = "boxplot",
+       x="total bedrooms")
+#
+
+
+```
+```{r}
+data %>% 
+  filter(total_rooms<20000) %>% 
+  ggplot(aes(x=total_rooms,fill=ocean_proximity))+
+  geom_boxplot()+
+  coord_flip()+
+  theme_bw()+
+  labs(title = "ditrib total rooms",
+       subtitle = "boxplot",
+       x="total rooms")
+
+```
+```{r}
+data_1 %>% 
+  ggplot(aes(x=median_income,fill=coté))+
+  geom_histogram(bins =4,binwidth = 1)+
+  facet_wrap(vars(coté),nrow = 2,ncol = 2)+
+  theme_bw()+
+  labs(title = "la distrib de revenu médian",
+       subtitle = "par la proximité à l’océan",
+       x="median income")
+
+data_1 %>% 
+  ggplot(aes(median_income,fill=coté))+
+  geom_density()+
+  facet_wrap(vars(coté),nrow = 2,ncol = 2)+
+  theme_bw()+
+  labs(title = "la distrib de revenu médian",
+       subtitle = "par la proximité à l’océan",
+       x="median income")
+  
+```
+```{r}
+data %>% 
+  ggplot(aes(median_house_value,housing_median_age))+
+  geom_point(col="green")+
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs l’age des maisons",
+       subtitle = "nuage de point",
+       x="valeur de maison",
+       y="l'age de maison")
+####
+       
+
+data %>% 
+  ggplot(aes(median_house_value,housing_median_age,col=ocean_proximity))+
+  geom_point()+
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs l’age des maisons",
+       subtitle = "nuage de point",
+       x="valeur de maison",
+       y="l'age de maison")
+#la valeur des maisons augmente quand on se rapproche la mere 
+
+
+```
+```{r}
+
+data %>% 
+  ggplot(aes(x=median_house_value,total_rooms))+
+  geom_point(col="red")+
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "cuisines et sale de bain inclu",
+       x="valeur de maison",
+       y="nbre de chambres")
+###
+
+
+
+data %>% 
+  ggplot(aes(x=median_house_value,total_bedrooms))+
+  geom_point(col="yellow")+
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "bedrooms only",
+       x="valeur de maison",
+       y="nbre de chambres")
+####
+
+
+
+```
+```{r}
+data %>% 
+  ggplot(aes(x=median_house_value,total_rooms,col=ocean_proximity))+
+  geom_point()+ 
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "cuisines et sale de bain inclu",
+       x="valeur de maison",
+       y="nbre de chambres")
+###
+
+
+data %>% drop_na(total_bedrooms) %>% 
+  ggplot(aes(x=median_house_value,total_bedrooms,col=ocean_proximity))+
+  geom_point()+
+    theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "bedrooms only",
+       x="valeur de maison",
+       y="nbre de chambres")
+###
+
+
+
+```
+```{r}
+data_1 %>% 
+  ggplot(aes(x=median_house_value,total_rooms,col=coté))+
+  geom_point()+ 
+  theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "cuisines et sale de bain inclu",
+       x="valeur de maison",
+       y="nbre de chambres")
+###
+
+data_1 %>% drop_na(total_bedrooms) %>% 
+  ggplot(aes(x=median_house_value,total_bedrooms,col=coté))+
+  geom_point()+
+    theme_bw()+
+  labs(title = "la valeur médiane de la maison vs nombre de chambres",
+       subtitle = "bedrooms only",
+       x="valeur de maison",
+       y="nbre de chambres")
+
+
+######
+
+
+
+```
+```{r}
+data %>% 
+  ggplot(aes(households,population))+
+  geom_point(col="blue")+
+  theme_bw()+
+  labs(title = "la population vs les menages",
+       y="pop",
+       x="les menages")
+# la population augmente avec l'augmentation des meanages dans le cityblock
+```
+
+
+##################################################################################################
+
+
+```{r}
+
+library(corrplot)
+
+cor(data[1:9],use = "complete.obs") 
+corrplot(cor(data[1:9],use = "complete.obs"),
+         main= "correlation de tout les variables numeriques",
+         method = "circle")
+  
+
+```
+```{r}
+data %>% 
+  select(median_house_value,ocean_proximity) %>% 
+  filter(ocean_proximity=="NEAR BAY") %>% 
+  pull(median_house_value) %>% 
+  summary()
+ 
+data %>% 
+  select(median_house_value,ocean_proximity) %>% 
+  filter(ocean_proximity=="<1H OCEAN") %>% 
+  pull(median_house_value) %>% 
+  summary()
+ 
+	
+data %>% 
+  select(median_house_value,ocean_proximity) %>% 
+  filter(ocean_proximity=="INLAND") %>% 
+  pull(median_house_value) %>% 
+  summary()
+ 
+data %>% 
+  select(median_house_value,ocean_proximity) %>% 
+  filter(ocean_proximity=="NEAR OCEAN") %>% 
+  pull(median_house_value) %>% 
+  summary()
+
+```
+```{r}
+data_1 %>% 
+  select(median_house_value,coté) %>% 
+  filter(coté=="NORTHWEST") %>% 
+  pull(median_house_value) %>% 
+  summary()
+data_1 %>% 
+  select(median_house_value,coté) %>% 
+  filter(coté=="NORTHEAST") %>% 
+  pull(median_house_value) %>% 
+  summary()
+data_1 %>% 
+  select(median_house_value,coté) %>% 
+  filter(coté=="SOUTHWEST") %>% 
+  pull(median_house_value) %>% 
+  summary()
+data_1 %>% 
+  select(median_house_value,coté) %>% 
+  filter(coté=="SOUTHEAST") %>% 
+  pull(median_house_value) %>% 
+  summary()
+
+
+```
+
+
+##################################################################################################
+
+
+
+```{r}
+#   as a CONCLUSION:
+#  the median house value increases when close to the ocean (ocean proximity),it also increases when the house has multiple rooms (both variables) ,the population increases when near the ocean and this means the increase of households.
+# les ANOMALIS :
+# however we can find some outlayers such as the price of a house is (500001$) in comparisson to the median houses values (206376$) and the 3rd quartiles ( 263800$).
+
+#also cityblock with more than (28566) population, which also means that the household in this cityblock in very high , when the mean population is (1431) per cityblock.
+
+# also cityblocks with (39320) or (12) rooms when the mean is (2651) per cityblock
+
+#we can also mention the highest income of (1500010$) in one cityblock when the median income is around (35257$)
+
+
+
+# Question 01 ===== INSPECTER LA BASE DE DONNEES 
+# Question 02 ===== REDUCTION DE BASE DE DONNES (ECHONTILLONAGE)
+# Question 03 ===== INSPECTER LA BASE DE DONNES GRAPHIQUEMENT
+# Question 04 ===== STATISTIQUE DESCRIPTIVE 
+# Question 05 ===== ANALYZE GRAPHIQUE DU FREQUENCE DES CITYBLOCK 
+# Question 06 ===== RELATION ENTRE LES VARIBLES ET LA PROXIMITY D'OCEAN
+# Question 07 ===== CORRELATION ENTRE LES VARIABLES 
+# Question 08 ===== CONCLUSION 
+
+
+
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
